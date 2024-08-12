@@ -1,80 +1,53 @@
 local BoxESP = {}
 function BoxESP.Create(Player)
-local Box = Drawing.new("Square")
-Box.Visible = false
-Box.Color = Color3.fromRGB(221, 160, 221)  
-Box.Filled = false
-Box.Transparency = 0.50
-Box.Thickness = 1
+    local Box = Drawing.new("Square")
+    Box.Visible = false
+    Box.Color = Color3.fromRGB(221, 160, 221)
+    Box.Filled = false
+    Box.Transparency = 0.50
+    Box.Thickness = 1
 
-local Label = Drawing.new("Text")
-Label.Text = "Player"
-Label.Size = 15
-Label.Center = true
-Label.Outline = true
-Label.Color = Color3.fromRGB(221, 160, 221)  
-Label.Visible = false
+    local Updater
 
-local DistanceLabel = Drawing.new("Text")
-DistanceLabel.Size = 15
-DistanceLabel.Center = true
-DistanceLabel.Outline = true
-DistanceLabel.Color = Color3.fromRGB(221, 160, 221) 
-DistanceLabel.Visible = false
+    local function UpdateBox()
+        if Player and Player:IsA("Model") and Player:FindFirstChild("HumanoidRootPart") and Player:FindFirstChild("Head") then
+            local Target2dPosition, IsVisible = workspace.CurrentCamera:WorldToViewportPoint(Player.HumanoidRootPart.Position)
+            local scale_factor = 1 / (Target2dPosition.Z * math.tan(math.rad(workspace.CurrentCamera.FieldOfView * 0.5)) * 2) * 100
+            local width, height = math.floor(40 * scale_factor), math.floor(62 * scale_factor)
 
-local Updater
+            Box.Visible = IsVisible
+            Box.Size = Vector2.new(width, height)
+            Box.Position = Vector2.new(Target2dPosition.X - Box.Size.X / 2, Target2dPosition.Y - Box.Size.Y / 2)
+        else
+            Box.Visible = false
+            if not Player then
+                Box:Remove()
+                Updater:Disconnect()
+            end
+        end
+    end
 
-local function UpdateBox()
-if Player and Player:IsA("Model") and Player:FindFirstChild("HumanoidRootPart") and Player:FindFirstChild("Head") then
-local Target2dPosition, IsVisible = workspace.CurrentCamera:WorldToViewportPoint(Player.HumanoidRootPart.Position)
-local scale_factor = 1 / (Target2dPosition.Z * math.tan(math.rad(workspace.CurrentCamera.FieldOfView * 0.5)) * 2) * 100
-local width, height = math.floor(40 * scale_factor), math.floor(62 * scale_factor)
-local distance = math.floor(((workspace.CurrentCamera.CFrame.Position - Player.HumanoidRootPart.Position).Magnitude) * 0.28)  
+    Updater = game:GetService("RunService").RenderStepped:Connect(UpdateBox)
 
-Box.Visible = IsVisible
-Box.Size = Vector2.new(width, height)
-Box.Position = Vector2.new(Target2dPosition.X - Box.Size.X / 2, Target2dPosition.Y - Box.Size.Y / 2)
-
-Label.Visible = IsVisible
-Label.Position = Vector2.new(Box.Position.X + Box.Size.X / 2, Box.Position.Y - Label.TextBounds.Y - 2)
-
-DistanceLabel.Visible = IsVisible
-DistanceLabel.Text = tostring(distance) .. "m"
-DistanceLabel.Position = Vector2.new(Box.Position.X + Box.Size.X / 2, Box.Position.Y + Box.Size.Y)
-
-else
-Box.Visible = false
-Label.Visible = false
-DistanceLabel.Visible = false
-if not Player then
-Box:Remove()
-Label:Remove()
-DistanceLabel:Remove()
-Updater:Disconnect()
-end
-end
-end
-Updater = game:GetService("RunService").RenderStepped:Connect(UpdateBox)
-
-return Box
+    return Box
 end
 
 local Boxes = {}
 
 local function EnableBoxESP()
-for _, Player in pairs(game:GetService("Workspace"):GetChildren()) do
-if Player:IsA("Model") and Player:FindFirstChild("HumanoidRootPart") and Player:FindFirstChild("Head") then
-local Box = BoxESP.Create(Player)
-table.insert(Boxes, Box)
-end
-end
+    for _, Player in pairs(game:GetService("Workspace"):GetChildren()) do
+        if Player:IsA("Model") and Player:FindFirstChild("HumanoidRootPart") and Player:FindFirstChild("Head") then
+            local Box = BoxESP.Create(Player)
+            table.insert(Boxes, Box)
+        end
+    end
 end
 
 game.Workspace.DescendantAdded:Connect(function(i)
-if i:IsA("Model") and i:FindFirstChild("HumanoidRootPart") and i:FindFirstChild("Head") then
-local Box = BoxESP.Create(i)
-table.insert(Boxes, Box)
-end
+    if i:IsA("Model") and i:FindFirstChild("HumanoidRootPart") and i:FindFirstChild("Head") then
+        local Box = BoxESP.Create(i)
+        table.insert(Boxes, Box)
+    end
 end)
 
 EnableBoxESP()
