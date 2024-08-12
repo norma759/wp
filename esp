@@ -5,7 +5,7 @@ function BoxESP.Create(Player)
     Box.Color = Color3.fromRGB(255, 0, 0)
     Box.Filled = false
     Box.Transparency = 0.50
-    Box.Thickness = 1
+    Box.Thickness = 2
 
     local Updater
 
