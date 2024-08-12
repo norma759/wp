@@ -2,7 +2,7 @@ local BoxESP = {}
 function BoxESP.Create(Player)
     local Box = Drawing.new("Square")
     Box.Visible = false
-    Box.Color = Color3.fromRGB(221, 160, 221)
+    Box.Color = Color3.fromRGB(255, 0, 0)
     Box.Filled = false
     Box.Transparency = 0.50
     Box.Thickness = 1
